@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>Create an Account</h2>
+
+<form action="register.php" method="post" onsubmit="return validateRegister()">
+
+    <label>Username:</label><br>
+    <input type="text" id="username" name="username" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <label>Confirm Password:</label><br>
+    <input type="password" id="confirm" name="confirm_password" required><br><br>
+
+    <button type="submit">Register</button>
+
+</form>
+
+<p id="error" style="color:red;"></p>
+
+<br>
+<a href="login.html">Already have an account?</a>
+
+<script>
+function validateRegister() {
+    const username = document.getElementById("username").value.trim();
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirm  = document.getElementById("confirm").value;
+    const error    = document.getElementById("error");
+
+    error.textContent = "";
+
+    if (username.length < 3) {
+        error.textContent = "Username must be at least 3 characters and not only spaces.";
+        return false;
+    }
+
+    if (!email.includes("@")) {
+        error.textContent = "Please enter a valid email address.";
+        return false;
+    }
+
+    if (password.length < 6) {
+        error.textContent = "Password must be at least 6 characters long.";
+        return false;
+    }
+
+    if (password !== confirm) {
+        error.textContent = "Passwords do not match.";
+        return false;
+    }
+
+    return true;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<?php
+session_start();
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.html");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Add Driving Experience</title>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        fetch("get_options.php")
+            .then(response => response.json())
+            .then(data => {
+                populateSelect("weather_id", data.weather, "Select weather");
+                populateSelect("traffic_id", data.traffic, "Select traffic level");
+                populateSelect("road_type_id", data.road, "Select road type");
+                populateSurfaces("surface_ids", data.surface);
+            });
+
+        function populateSelect(id, items, placeholder) {
+            const select = document.getElementById(id);
+
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "";
+            defaultOpt.textContent = placeholder;
+            defaultOpt.disabled = true;
+            defaultOpt.selected = true;
+            select.appendChild(defaultOpt);
+
+            items.forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = item.id;
+                opt.textContent = item.label;
+                select.appendChild(opt);
+            });
+        }
+
+        function populateSurfaces(containerId, items) {
+            const container = document.getElementById(containerId);
+
+            items.forEach(item => {
+                const label = document.createElement("label");
+                label.style.display = "block";
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.name = "surface_ids[]";
+                checkbox.value = item.id;
+
+                label.appendChild(checkbox);
+                label.append(" " + item.label);
+
+                container.appendChild(label);
+            });
+        }
+    });
+
+    function validateExperience() {
+        const distance = parseFloat(document.getElementById("distance_km").value);
+        const weather  = document.getElementById("weather_id").value;
+        const traffic  = document.getElementById("traffic_id").value;
+        const road     = document.getElementById("road_type_id").value;
+        const error    = document.getElementById("error");
+
+        error.textContent = "";
+
+        if (isNaN(distance) || distance <= 0) {
+            error.textContent = "Distance must be greater than 0.";
+            return false;
+        }
+
+        if (!weather || !traffic || !road) {
+            error.textContent = "Please select weather, traffic level, and road type.";
+            return false;
+        }
+
+        const checkedSurfaces = document.querySelectorAll(
+            "input[name='surface_ids[]']:checked"
+        );
+        if (checkedSurfaces.length === 0) {
+            error.textContent = "Please select at least one surface condition.";
+            return false;
+        }
+
+        return true;
+    }
+    </script>
+</head>
+
+<body>
+
+<h1>Add Driving Experience</h1>
+
+<form action="driving_experience.php" method="post" onsubmit="return validateExperience();">
+
+    <label>Date of Drive:</label><br>
+    <input type="date" name="drive_date" required><br><br>
+
+    <label>Time of Drive:</label><br>
+    <input type="time" name="drive_time" required><br><br>
+
+    <label>Distance (km):</label><br>
+    <input type="number" id="distance_km" name="distance_km" step="0.1" min="0" required><br><br>
+
+    <label>Weather:</label><br>
+    <select id="weather_id" name="weather_id" required></select><br><br>
+
+    <label>Traffic Level:</label><br>
+    <select id="traffic_id" name="traffic_id" required></select><br><br>
+
+    <label>Road Type:</label><br>
+    <select id="road_type_id" name="road_type_id" required></select><br><br>
+
+    <label>Surface Conditions (select at least one):</label><br>
+    <div id="surface_ids"></div><br>
+
+    <label>Notes (optional):</label><br>
+    <textarea name="notes" rows="3"></textarea><br><br>
+
+    <button type="submit">Save Experience</button>
+
+</form>
+
+<p id="error" style="color:red;"></p>
+
+<br>
+<a href="landing.php">Back</a>
+
+</body>
+</html>

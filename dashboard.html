@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</head>
+<body>
+
+<h1>Your Dashboard</h1>
+
+<h2>Total Kilometers: <span id="kmTotal">0</span></h2>
+
+<h2>Experiences</h2>
+<div id="list"></div>
+
+<h2>Statistics</h2>
+<div class="charts">
+    <canvas id="trafficChart"></canvas>
+    <canvas id="roadChart"></canvas>
+</div>
+
+<script>
+fetch("dashboard.php")
+    .then(r => r.json())
+    .then(data => {
+        renderList(data.experiences);
+        renderCharts(data);
+        document.getElementById("kmTotal").textContent = data.total_km;
+    });
+
+function renderList(exps) {
+    const div = document.getElementById("list");
+    div.innerHTML = "";
+
+    exps.forEach(exp => {
+        div.innerHTML += `
+            <div class="experience">
+                <strong>${exp.drive_date}</strong> — ${exp.drive_time}<br>
+                KM: ${exp.distance_km}<br>
+                Weather: ${exp.weather}, Traffic: ${exp.traffic}, Road: ${exp.road}<br>
+                Surfaces: ${exp.surfaces.join(", ")}<br>
+                <button class="delete-btn" onclick="deleteExp(${exp.id})">Delete</button>
+            </div>
+        `;
+    });
+}
+
+function deleteExp(id) {
+    if (!confirm("Delete this experience?")) return;
+
+    fetch("delete_experience.php?id=" + id)
+        .then(r => r.text())
+        .then(msg => {
+            alert(msg);
+            location.reload();
+        });
+}
+function renderCharts(data) {
+    let tLabels = Object.keys(data.trafficCounts);
+    let tCounts = Object.values(data.trafficCounts);
+
+    new Chart(document.getElementById("trafficChart"), {
+        type: "bar",
+        data: {
+            labels: tLabels,
+            datasets: [{
+                label: "Traffic Levels",
+                data: tCounts,
+                backgroundColor: "#4e79a7"
+            }]
+        },
+        options: { responsive: false }
+    });
+
+    let rLabels = Object.keys(data.roadCounts);
+    let rCounts = Object.values(data.roadCounts);
+
+    new Chart(document.getElementById("roadChart"), {
+        type: "bar",
+        data: {
+            labels: rLabels,
+            datasets: [{
+                label: "Road Types",
+                data: rCounts,
+                backgroundColor: "#e15759"
+            }]
+        },
+        options: { responsive: false }
+    });
+}
+</script>
+
+</body>
+</html>
