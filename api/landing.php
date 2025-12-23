@@ -1,6 +1,5 @@
 <?php
-require_once "includeDB.inc.php";
-
+require_once __DIR__ . "/../includes/includeDB.inc.php";
 require_login();
 
 $username = htmlspecialchars($_SESSION["username"]);
@@ -26,8 +25,8 @@ $username = htmlspecialchars($_SESSION["username"]);
 <p>Select an action:</p>
 
 <ul>
-    <li><a href="driving_experience.html">Enter a Driving Experience</a></li>
-    <li><a href="dashboard.html">View Summary</a></li>
+    <li><a href="../public/driving_experience.html">Enter a Driving Experience</a></li>
+    <li><a href="../public/dashboard.html">View Summary</a></li>
     <li><a href="logout.php">Logout</a></li>
 </ul>
 

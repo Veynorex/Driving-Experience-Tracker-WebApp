@@ -24,7 +24,7 @@
 </div>
 
 <script>
-fetch("dashboard.php")
+fetch("../api/dashboard.php")
     .then(r => r.json())
     .then(data => {
         renderList(data.experiences);
@@ -52,7 +52,7 @@ function renderList(exps) {
 function deleteExp(id) {
     if (!confirm("Delete this experience?")) return;
 
-    fetch("delete_experience.php?id=" + id)
+    fetch("../api/delete_experience.php?id=" + id)
         .then(r => r.text())
         .then(msg => {
             alert(msg);

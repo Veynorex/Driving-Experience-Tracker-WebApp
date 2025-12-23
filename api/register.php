@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ":password_hash" => $hashed
     ]);
 
-    echo "Registration successful! <a href='login.html'>Login here</a>";
+    echo "Registration successful! <a href='../public/login.html'>Login here</a>";
     exit;
 }
 ?>

@@ -24,7 +24,7 @@ try {
 
 function require_login(): void {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: login.html");
+        header("Location: ../public/login.html");
         exit();
     }
 }

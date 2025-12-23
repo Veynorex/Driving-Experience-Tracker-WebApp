@@ -1,6 +1,5 @@
 <?php
-require_once "includeDB.inc.php";
-
+require_once __DIR__ . "/../includes/includeDB.inc.php";
 header("Content-Type: application/json");
 
 $options = [
