@@ -9,12 +9,9 @@ $username = htmlspecialchars($_SESSION["username"]);
 <head>
     <meta charset="UTF-8">
     <title>Home – Driving Experience</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../public/style.css">
 </head>
 <body>
-
-<h1>Supervised Driving Experience</h1>
-<h2>Hello, <?php echo $username; ?>!</h2>
 
 <?php if (!empty($_GET['success'])): ?>
     <p style="color: green; font-weight: bold;">
@@ -22,13 +19,37 @@ $username = htmlspecialchars($_SESSION["username"]);
     </p>
 <?php endif; ?>
 
-<p>Select an action:</p>
 
-<ul>
-    <li><a href="../public/driving_experience.html">Enter a Driving Experience</a></li>
-    <li><a href="../public/dashboard.html">View Summary</a></li>
-    <li><a href="logout.php">Logout</a></li>
-</ul>
+<div class="container">
+  <h1>Welcome <?php echo $username; ?>!</h1>
+  <p>Select an action below:</p>
+
+  <div class="nav-buttons">
+
+    <a href="../public/driving_experience.html">
+      <div class="nav-card">
+        <h3>Add Driving Experience</h3>
+        <p>Record a new supervised driving session</p>
+      </div>
+    </a>
+
+    <a href="../public/dashboard.html">
+      <div class="nav-card">
+        <h3>Dashboard</h3>
+        <p>View your driving summary and statistics</p>
+      </div>
+    </a>
+
+    <a href="logout.php">
+      <div class="nav-card">
+        <h3>Logout</h3>
+        <p>Sign out of your account</p>
+      </div>
+    </a>
+
+  </div>
+</div>
+
 
 </body>
 </html>

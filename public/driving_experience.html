@@ -47,7 +47,7 @@ if (!isset($_SESSION["user_id"])) {
 
             items.forEach(item => {
                 const label = document.createElement("label");
-                label.style.display = "block";
+                label.className = "checkbox-item";
 
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
@@ -96,42 +96,49 @@ if (!isset($_SESSION["user_id"])) {
 
 <body>
 
-<h1>Add Driving Experience</h1>
-
+<div class="form-container">
+    <h2>Add Driving Experience</h2>
 <form action="../api/driving_experience.php" method="post" onsubmit="return validateExperience();">
-
+<div class="form-group">
     <label>Date of Drive:</label><br>
-    <input type="date" name="drive_date" required><br><br>
-
+    <input type="date" name="drive_date" required>
+</div>
+<div class="form-group">
     <label>Time of Drive:</label><br>
-    <input type="time" name="drive_time" required><br><br>
-
+    <input type="time" name="drive_time" required>
+</div>
+<div class="form-group">
     <label>Distance (km):</label><br>
-    <input type="number" id="distance_km" name="distance_km" step="0.1" min="0" required><br><br>
-
+    <input type="number" id="distance_km" name="distance_km" step="0.1" min="0" required>
+</div>
+<div class="form-group">
     <label>Weather:</label><br>
-    <select id="weather_id" name="weather_id" required></select><br><br>
-
+    <select id="weather_id" name="weather_id" required></select>
+</div>
+<div class="form-group">
     <label>Traffic Level:</label><br>
-    <select id="traffic_id" name="traffic_id" required></select><br><br>
-
+    <select id="traffic_id" name="traffic_id" required></select>
+</div>
+<div class="form-group">
     <label>Road Type:</label><br>
-    <select id="road_type_id" name="road_type_id" required></select><br><br>
-
-    <label>Surface Conditions (select at least one):</label><br>
-    <div id="surface_ids"></div><br>
-
+    <select id="road_type_id" name="road_type_id" required></select>
+</div>
+<div class="form-group">
+    <label>Surface Conditions (select at least one):</label>
+    <div id="surface_ids" class="checkbox-group"></div>
+</div>
+<div class="form-group">
     <label>Notes (optional):</label><br>
     <textarea name="notes" rows="3"></textarea><br><br>
-
+</div>
     <button type="submit">Save Experience</button>
 
 </form>
 
-<p id="error" style="color:red;"></p>
-
-<br>
-<a href="../api/landing.php">Back</a>
-
+<p id="error" class="form-error"></p>
+<div class="form-actions">
+    <a href="../api/landing.php">Back to menu</a>
+</div>
+</div>
 </body>
 </html>
