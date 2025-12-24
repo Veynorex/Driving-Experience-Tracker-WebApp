@@ -1,95 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
 
-
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-<h1>Your Dashboard</h1>
+<div class="container">
 
-<h2>Total Kilometers: <span id="kmTotal">0</span></h2>
+    <h1>Driving Experience Dashboard</h1>
 
-<h2>Experiences</h2>
-<div id="list"></div>
+    <div class="filter-bar">
+        <h3>Filter Experiences</h3>
 
-<h2>Statistics</h2>
-<div class="charts">
-    <canvas id="trafficChart"></canvas>
-    <canvas id="roadChart"></canvas>
+        <div class="filter-group">
+            <label>From date</label>
+            <input type="date" id="from_date">
+        </div>
+
+        <div class="filter-group">
+            <label>To date</label>
+            <input type="date" id="to_date">
+        </div>
+
+        <div class="filter-group">
+            <label>Weather</label>
+            <select id="weather_filter"></select>
+        </div>
+
+        <div class="filter-group">
+            <label>Traffic</label>
+            <select id="traffic_filter"></select>
+        </div>
+
+        <div class="filter-group">
+            <label>Road</label>
+            <select id="road_filter"></select>
+        </div>
+
+        <div class="filter-actions">
+            <button onclick="loadDashboard()">Apply filters</button>
+            <button onclick="resetFilters()">Reset</button>
+        </div>
+    </div>
+
+    <h2>Total kilometers: <span id="kmTotal">0</span> km</h2>
+
+    <h2>Driving Experiences</h2>
+    <div id="list"></div>
+
+    <h2>Statistics</h2>
+    <div class="charts">
+        <canvas id="trafficChart"></canvas>
+        <canvas id="roadChart"></canvas>
+        <canvas id="weatherChart"></canvas>
+        <canvas id="surfaceChart"></canvas>
+    </div>
+
 </div>
 
 <script>
-fetch("../api/dashboard.php")
+let trafficChart, roadChart, weatherChart, surfaceChart;
+
+fetch("../api/get_options.php")
     .then(r => r.json())
     .then(data => {
-        renderList(data.experiences);
-        renderCharts(data);
-        document.getElementById("kmTotal").textContent = data.total_km;
+        fillSelect("weather_filter", data.weather);
+        fillSelect("traffic_filter", data.traffic);
+        fillSelect("road_filter", data.road);
+        loadDashboard();
     });
 
-function renderList(exps) {
-    const div = document.getElementById("list");
-    div.innerHTML = "";
-
-    exps.forEach(exp => {
-        div.innerHTML += `
-            <div class="experience">
-                <strong>${exp.drive_date}</strong> — ${exp.drive_time}<br>
-                KM: ${exp.distance_km}<br>
-                Weather: ${exp.weather}, Traffic: ${exp.traffic}, Road: ${exp.road}<br>
-                Surfaces: ${exp.surfaces.join(", ")}<br>
-                <button class="delete-btn" onclick="deleteExp(${exp.id})">Delete</button>
-            </div>
-        `;
+function fillSelect(id, items) {
+    const select = document.getElementById(id);
+    select.innerHTML = `<option value="">All</option>`;
+    items.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.id;
+        opt.textContent = item.label;
+        select.appendChild(opt);
     });
 }
 
-function deleteExp(id) {
-    if (!confirm("Delete this experience?")) return;
+function loadDashboard() {
+    const params = new URLSearchParams({
+        from: document.getElementById("from_date").value,
+        to: document.getElementById("to_date").value,
+        weather: document.getElementById("weather_filter").value,
+        traffic: document.getElementById("traffic_filter").value,
+        road: document.getElementById("road_filter").value
+    });
 
-    fetch("../api/delete_experience.php?id=" + id)
-        .then(r => r.text())
-        .then(msg => {
-            alert(msg);
-            location.reload();
+    fetch("../api/dashboard.php?" + params.toString())
+        .then(r => r.json())
+        .then(data => {
+            renderList(data.experiences);
+            document.getElementById("kmTotal").textContent = data.total_km;
+            renderCharts(data);
         });
 }
-function renderCharts(data) {
-    let tLabels = Object.keys(data.trafficCounts);
-    let tCounts = Object.values(data.trafficCounts);
 
-    new Chart(document.getElementById("trafficChart"), {
+function resetFilters() {
+    document.querySelectorAll(".filter-bar input, .filter-bar select")
+        .forEach(el => el.value = "");
+    loadDashboard();
+}
+function renderList(exps) {
+    const container = document.getElementById("list");
+    container.innerHTML = "";
+
+    if (exps.length === 0) {
+        container.innerHTML = "<p>No driving experiences found.</p>";
+        return;
+    }
+
+    exps.forEach(exp => {
+        const card = document.createElement("div");
+        card.className = "experience";
+
+        card.innerHTML = `
+            <div class="experience-header">
+                ${exp.drive_date} — ${exp.drive_time}
+            </div>
+
+            <div class="experience-grid">
+                <div>
+                    <span class="exp-label">Distance:</span>
+                    <span class="exp-value">${exp.distance_km} km</span>
+                </div>
+
+                <div>
+                    <span class="exp-label">Weather:</span>
+                    <span class="exp-value">${exp.weather}</span>
+                </div>
+
+                <div>
+                    <span class="exp-label">Traffic:</span>
+                    <span class="exp-value">${exp.traffic}</span>
+                </div>
+
+                <div>
+                    <span class="exp-label">Road:</span>
+                    <span class="exp-value">${exp.road}</span>
+                </div>
+
+                <div>
+                    <span class="exp-label">Surface:</span>
+                    <span class="exp-value">${exp.surfaces.join(", ")}</span>
+                </div>
+            </div>
+
+            ${exp.notes ? `<div class="experience-notes">Notes: ${exp.notes}</div>` : ""}
+
+            <div class="experience-actions">
+                <button class="delete-btn" onclick="deleteExperience(${exp.id})">
+                    Delete
+                </button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function deleteExperience(id) {
+    if (!confirm("Are you sure you want to delete this experience?")) return;
+
+    fetch("../api/delete_experience.php?id=" + id)
+        .then(() => loadDashboard());
+}
+
+function renderCharts(data) {
+
+    if (trafficChart) {
+        trafficChart.destroy();
+        trafficChart = null;
+    }
+    if (roadChart) {
+        roadChart.destroy();
+        roadChart = null;
+    }
+    if (weatherChart) {
+        weatherChart.destroy();
+        weatherChart = null;
+    }
+    if (surfaceChart) {
+        surfaceChart.destroy();
+        surfaceChart = null;
+    }
+
+    const trafficCtx = document.getElementById("trafficChart").getContext("2d");
+    const roadCtx    = document.getElementById("roadChart").getContext("2d");
+    const weatherCtx = document.getElementById("weatherChart").getContext("2d");
+    const surfaceCtx = document.getElementById("surfaceChart").getContext("2d");
+
+    trafficChart = new Chart(trafficCtx, {
         type: "bar",
         data: {
-            labels: tLabels,
+            labels: Object.keys(data.trafficCounts),
             datasets: [{
                 label: "Traffic Levels",
-                data: tCounts,
+                data: Object.values(data.trafficCounts),
                 backgroundColor: "#4e79a7"
             }]
         },
-        options: { responsive: false }
+        options: {
+            responsive: false,
+            maintainAspectRatio: false
+        }
     });
 
-    let rLabels = Object.keys(data.roadCounts);
-    let rCounts = Object.values(data.roadCounts);
-
-    new Chart(document.getElementById("roadChart"), {
+    roadChart = new Chart(roadCtx, {
         type: "bar",
         data: {
-            labels: rLabels,
+            labels: Object.keys(data.roadCounts),
             datasets: [{
                 label: "Road Types",
-                data: rCounts,
+                data: Object.values(data.roadCounts),
                 backgroundColor: "#e15759"
             }]
         },
-        options: { responsive: false }
+        options: {
+            responsive: false,
+            maintainAspectRatio: false
+        }
+    });
+
+    weatherChart = new Chart(weatherCtx, {
+        type: "pie",
+        data: {
+            labels: Object.keys(data.weatherCounts),
+            datasets: [{
+                data: Object.values(data.weatherCounts),
+                backgroundColor: [
+                    "#59a14f",
+                    "#f28e2b",
+                    "#4e79a7",
+                    "#e15759"
+                ]
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false
+        }
+    });
+
+    surfaceChart = new Chart(surfaceCtx, {
+        type: "bar",
+        data: {
+            labels: Object.keys(data.surfaceCounts),
+            datasets: [{
+                label: "Surface Conditions",
+                data: Object.values(data.surfaceCounts),
+                backgroundColor: "#76b7b2"
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false
+        }
     });
 }
 </script>
