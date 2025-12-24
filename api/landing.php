@@ -8,20 +8,17 @@ $username = htmlspecialchars($_SESSION["username"]);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home – Driving Experience</title>
+    <title>TRAX - Home</title>
     <link rel="stylesheet" href="../public/style.css">
 </head>
 <body>
-
-<?php if (!empty($_GET['success'])): ?>
+<div class="container">
+  <?php if (!empty($_GET['success'])): ?>
     <p style="color: green; font-weight: bold;">
         Driving experience saved successfully!
     </p>
 <?php endif; ?>
-
-
-<div class="container">
-  <h1>Welcome <?php echo $username; ?>!</h1>
+  <h1>Welcome to TRAX, <?php echo $username; ?>!</h1>
   <p>Select an action below:</p>
 
   <div class="nav-buttons">
@@ -48,6 +45,11 @@ $username = htmlspecialchars($_SESSION["username"]);
     </a>
 
   </div>
+  <div class="landing-footer">
+    <p>TRAX - Tracks your experience on any track!</p>
+    <p>Drive safely</p>
+  </div>
+
 </div>
 
 
